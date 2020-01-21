@@ -15,13 +15,11 @@ import subprocess
 import pkg_resources
 import logging
 
-from bugzoo import Container as BugZooContainer
+from darjeeling.container import Container as DarjeelingContainer
 from loguru import logger
 from roswire.util import Stopwatch
-from roswire.proxy.container import ShellProxy as ROSWireShell
 import attr
 import dronekit
-import roswire
 
 BIN_MAVPROXY = \
     pkg_resources.resource_filename(__name__, 'data/mavproxy')
@@ -241,7 +239,7 @@ class Mission(Sequence[dronekit.Command]):
 
 @attr.s
 class SITL:
-    _shell: ROSWireShell = attr.ib(repr=False)
+    _container: DarjeelingContainer = attr.ib(repr=False)
     ip_address: str = attr.ib()
     model: str = attr.ib()
     parameters_filename: str = attr.ib()
@@ -261,7 +259,7 @@ class SITL:
 
     @staticmethod
     @contextlib.contextmanager
-    def launch_with_mavproxy(shell: ROSWireShell,
+    def launch_with_mavproxy(container: DarjeelingContainer,
                              ip_address: str,
                              model: str,
                              parameters_filename: str,
@@ -271,7 +269,7 @@ class SITL:
                              speedup: int = 1
                              ) -> Iterator[Tuple[str, ...]]:
         logger.debug("launching SITL with MAVProxy...")
-        with SITL(shell,
+        with SITL(container=container,
                   ip_address=ip_address,
                   model=model,
                   parameters_filename=parameters_filename,
@@ -321,7 +319,7 @@ class SITL:
         """Launches this SITL."""
         command = self.command
         logger.debug('launching SITL: %s', command)
-        self._process = self._shell.popen(command)
+        self._process = self._container.shell.popen(command)
         time.sleep(5)
         return self
 
