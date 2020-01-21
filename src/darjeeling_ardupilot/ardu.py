@@ -5,7 +5,7 @@ ArduPilot via Dronekit and MAVLink.
 """
 __all__ = ('Mission', 'SITL')
 
-from typing import Sequence, Tuple, Optional, Iterator, FrozenSet
+from typing import Union, Sequence, Tuple, Optional, Iterator, FrozenSet
 import os
 import time
 import math
@@ -45,7 +45,7 @@ def distance_metres(x: dronekit.LocationGlobal,
 @attr.s(frozen=True, slots=True)
 class Mission(Sequence[dronekit.Command]):
     """Represents a WPL mission."""
-    filename: str = attr.ib(converter=os.path.abspath)
+    filename: str = attr.ib()
     commands: Sequence[dronekit.Command] = \
         attr.ib(repr=False, converter=tuple, hash=False, eq=False)
     home_location: Tuple[float, float, float, float] = \
@@ -70,17 +70,18 @@ class Mission(Sequence[dronekit.Command]):
             raise ValueError("mission must have at least one command")
 
     @classmethod
-    def from_file(cls, fn: str) -> 'Mission':
-        logger.debug("loading mission file: %s", fn)
-        with open(fn, 'r') as f:
+    def from_file(cls, filename: str) -> 'Mission':
+        logger.debug(f"loading mission file: {filename}")
+        with open(filename, 'r') as f:
             lines = [l.strip() for l in f]
-        return Mission(filename=fn,
+        filename = os.path.abspath(filename)
+        return Mission(filename=filename,
                        commands=[cls.line_to_command(l) for l in lines[1:]])
 
     @staticmethod
     def line_to_command(s: str) -> dronekit.Command:
         """Parses a WPL line to a Dronekit command."""
-        logger.debug("parsing command string: %s", s)
+        logger.debug(f"parsing command string: {s}")
         args = s.split()
         arg_index = int(args[0])
         arg_currentwp = 0
@@ -93,7 +94,7 @@ class Mission(Sequence[dronekit.Command]):
             p1, p2, p3, p4, x, y, z)
         return cmd
 
-    def __getitem__(self, index: int) -> dronekit.Command:
+    def __getitem__(self, index: Union[int, slice]) -> dronekit.Command:
         """Retrieves the i-th command from this mission."""
         return self.commands[index]
 
@@ -180,7 +181,7 @@ class Mission(Sequence[dronekit.Command]):
                 *,
                 timeout_setup: float = 90.0,
                 timeout_mission: float = 120.0
-                ) -> bool:
+                ) -> None:
         """Executes this mission on a given vehicle.
 
         Parameters
@@ -325,7 +326,7 @@ class SITL:
     def open(self) -> 'SITL':
         """Launches this SITL."""
         command = self.command
-        logger.debug('launching SITL: %s', command)
+        logger.debug(f'launching SITL: {command}')
         self._process = self._container.shell.popen(command)
         time.sleep(5)
         return self
@@ -343,7 +344,7 @@ class SITL:
             self._process.kill()
             retcode = self._process.wait()
         out = '\n'.join(self._process.stream)
-        logger.debug('SITL output [%d]:\n%s', retcode, out)
+        logger.debug('SITL output [{retcode}]:\n{out}')
 
     def __enter__(self) -> 'SITL':
         self.open()
