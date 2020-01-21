@@ -17,7 +17,7 @@ import logging
 
 from darjeeling import ProgramContainer as DarjeelingContainer
 from loguru import logger
-from roswire.util import Stopwatch
+from darjeeling.util import Stopwatch
 import attr
 import dronekit
 
