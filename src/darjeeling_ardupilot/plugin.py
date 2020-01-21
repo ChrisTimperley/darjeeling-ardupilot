@@ -75,6 +75,7 @@ class StartTest:
             evaluating relative file paths.
         """
         logger.debug(f"loading test from dict [dir={dir_}]: {d}")
+
         def err(msg: str) -> NoReturn:
             raise BadConfigurationException(msg)
 
@@ -148,19 +149,20 @@ class StartTestSuiteConfig(TestSuiteConfig):
                   dir_: Optional[str] = None
                   ) -> TestSuiteConfig:
         assert dir_
+
         def err(msg: str) -> NoReturn:
             raise BadConfigurationException(msg)
 
         default_vehicle = 'copter'
-        if not 'vehicle' in d:
-            logger.warning("test suite definition is missing 'vehicle' property. "
-                           f"using default value: {default_vehicle}")
+        if 'vehicle' not in d:
+            logger.warning("test suite definition is missing 'vehicle' "
+                           f"property. using default value: {default_vehicle}")
             vehicle = default_vehicle
         else:
             vehicle = d['vehicle']
             logger.info("using vehicle type: {vehicle}")
 
-        if not 'tests' in d:
+        if 'tests' not in d:
             err("test suite definition is missing 'tests' section")
         tests = [StartTest.from_dict(dd, dir_) for dd in d['tests']]
 
@@ -200,7 +202,8 @@ class StartTestSuite(TestSuite):
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"StartTestSuite({', '.join(str(self[t]) for t in self._tests)})"
+        description = ', '.join(str(self[t]) for t in self._tests)
+        return f"StartTestSuite({description})"
 
     def _execute_with_monitor(self,
                               container: DarjeelingContainer,
