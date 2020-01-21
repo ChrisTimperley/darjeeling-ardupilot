@@ -55,6 +55,7 @@ class SimpleMonitor(Monitor):
 
     def notify_mission_end(self) -> None:
         # TODO for the demo, just check that end location is home location?
+        assert self._connection
         lat_expected, lon_expected, alt_expected = \
             self._mission.home_location[0:3]
         loc_expected: dronekit.LocationGlobal = \
