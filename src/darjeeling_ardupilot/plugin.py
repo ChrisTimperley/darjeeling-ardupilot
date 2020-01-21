@@ -6,11 +6,7 @@ __all__ = ('StartTest',)
 
 from typing import (Tuple, Dict, Any, Sequence, NoReturn, Mapping, Iterator,
                     Optional, Callable)
-import contextlib
-import functools
 import os
-import time
-import logging
 
 import attr
 import darjeeling
@@ -25,7 +21,6 @@ from loguru import logger
 from .ardu import Mission, SITL
 from .core import Monitor
 from .attack import Attack
-from .cmt import StandaloneCMTMonitor
 from .simple import SimpleMonitor
 from .util import CircleIntBuffer
 from .executor import run_with_monitor_in_process
