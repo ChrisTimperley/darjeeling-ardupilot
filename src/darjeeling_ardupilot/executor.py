@@ -65,15 +65,14 @@ def run_with_monitor(container: DarjeelingContainer,
         shell = container.shell
 
         # launch SITL
-        sitl_kwargs = {'ip_address': ip_address,
-                       'model': model,
-                       'parameters_filename': parameters_filename,
-                       'home': mission.home_location,
-                       'speedup': speedup,
-                       'ports': ports_mavlink}
+        sitl_args = {'container': container,
+                     'model': model,
+                     'parameters_filename': parameters_filename,
+                     'home': mission.home_location,
+                     'speedup': speedup,
+                     'ports': ports_mavlink}
         url_dronekit, url_attacker, url_monitor = \
-            exit_stack.enter_context(SITL.launch_with_mavproxy(container,
-                                                               **sitl_kwargs))
+            exit_stack.enter_context(SITL.launch(**sitl_args))
         logger.debug(f"allocated DroneKit URL: {url_dronekit}")
         logger.debug(f"allocated attacker URL: {url_attacker}")
         logger.debug(f"allocated monitor URL: {url_monitor}")

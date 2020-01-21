@@ -21,9 +21,6 @@ from darjeeling.util import Stopwatch
 import attr
 import dronekit
 
-BIN_MAVPROXY = \
-    pkg_resources.resource_filename(__name__, 'data/mavproxy')
-
 
 def distance_metres(x: dronekit.LocationGlobal,
                     y: dronekit.LocationGlobal
@@ -245,7 +242,6 @@ class Mission(Sequence[dronekit.Command]):
 @attr.s
 class SITL:
     _container: DarjeelingContainer = attr.ib(repr=False)
-    ip_address: str = attr.ib()
     model: str = attr.ib()
     parameters_filename: str = attr.ib()
     home: Tuple[float, float, float, float] = \
@@ -264,25 +260,23 @@ class SITL:
 
     @staticmethod
     @contextlib.contextmanager
-    def launch_with_mavproxy(container: DarjeelingContainer,
-                             ip_address: str,
-                             model: str,
-                             parameters_filename: str,
-                             home: Tuple[float, float, float, float],
-                             ports: Tuple[int, ...],
-                             *,
-                             speedup: int = 1
-                             ) -> Iterator[Tuple[str, ...]]:
+    def launch(container: DarjeelingContainer,
+               model: str,
+               parameters_filename: str,
+               home: Tuple[float, float, float, float],
+               ports: Tuple[int, ...],
+               *,
+               speedup: int = 1
+               ) -> Iterator[Tuple[str, ...]]:
         logger.debug("launching SITL with MAVProxy...")
         with SITL(container=container,
-                  ip_address=ip_address,
                   model=model,
                   parameters_filename=parameters_filename,
                   home=home,
                   speedup=speedup) as sitl:
             logger.debug(f"started SITL: {sitl}")
-            with sitl.mavproxy(*ports) as urls:
-                yield urls
+            url_prefix = f'tcp:{container.ip_address}'
+            yield tuple(f'{url_prefix}:{port:d}' for port in ports)
 
     @property
     def command(self) -> str:
@@ -296,32 +290,6 @@ class SITL:
                f'--home {arg_home} '
                f'--defaults {fn_param}')
         return cmd
-
-    @contextlib.contextmanager
-    def mavproxy(self, *ports: int) -> Iterator[Tuple[str, ...]]:
-        url_master = f'tcp:{self.ip_address}:5760'
-        url_sitl = f'tcp:{self.ip_address}:5501'
-        urls_out = tuple(f'udp:127.0.0.1:{p}' for p in ports)
-        cmd_args = [f'{BIN_MAVPROXY} --daemon --master={url_master}']
-        cmd_args += [f'--out {url}' for url in urls_out]
-        cmd = ' '.join(cmd_args)
-
-        logger.debug(f"launching mavproxy: {cmd}")
-        p = None
-        try:
-            p = subprocess.Popen(cmd,
-                                 encoding='utf-8',
-                                 stdin=subprocess.DEVNULL,
-                                 stderr=subprocess.DEVNULL,
-                                 stdout=subprocess.DEVNULL,
-                                 preexec_fn=os.setsid,
-                                 shell=True)
-            yield urls_out
-        finally:
-            if p:
-                os.killpg(p.pid, signal.SIGTERM)
-                p.wait(2)
-                logger.debug("mavproxy exited with code %d", p.returncode)
 
     def open(self) -> 'SITL':
         """Launches this SITL."""
