@@ -49,11 +49,11 @@ def run_with_monitor(container: DarjeelingContainer,
                      parameters_filename: str,
                      monitor: Monitor,
                      attack: Optional[Attack],
-                     ip_address: str,
                      speedup: int,
                      timeout: int,
                      ports_mavlink: Tuple[int, int, int]
                      ) -> TestOutcome:
+    ip_address = container.ip_address
     logger.debug(f"container: {container}")
     logger.debug(f"container IP address: {ip_address}")
     logger.debug(f"using model: {model}")
