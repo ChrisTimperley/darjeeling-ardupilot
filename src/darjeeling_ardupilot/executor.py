@@ -8,8 +8,8 @@ import logging
 
 import darjeeling
 import dronekit
+from darjeeling import ProgramContainer as DarjeelingContainer
 from darjeeling.core import TestOutcome
-from darjeeling.container import Container as DarjeelingContainer
 from darjeeling.util import Stopwatch
 from loguru import logger
 
