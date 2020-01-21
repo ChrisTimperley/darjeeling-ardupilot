@@ -1,2 +1,20 @@
 # darjeeling-ardupilot
-An ArduPilot plugin for the Darjeeling program repair framework
+
+A plugin for the Darjeeling program repair framework that adds a specialised,
+software-in-the-loop simulation test harness for ArduPilot systems.
+
+
+## Installation
+
+Before installion, make sure that the following prerequisites are installed
+on your machine:
+
+* [Docker](https://docs.docker.com/install/). If using Ubuntu, be sure to follow
+  the official installation instructions for Docker, as `apt`, by default, provides
+  several egregiously outdated versions of Docker under slightly different names
+  (e.g., `docker`, `docker.io`).
+* Python 3.6.6 or greater. If the version of Python 3 on your machine is older
+  than 3.6.6, you may find it convenient to use [pyenv](https://github.com/pyenv/pyen)
+  to install the latest version.
+* [Pipenv](https://github.com/pypa/pipenv) should also be installed. Pipenv is
+  most easily installed to your system's Python libraries via `pip3`.
