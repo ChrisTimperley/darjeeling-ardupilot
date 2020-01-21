@@ -335,15 +335,16 @@ class SITL:
         """Closes this SITL."""
         # FIXME temporary workaround for problems with .terminate
         # self._process.terminate()
+        assert self._process
         cmd_kill = f'killall -15 {self.binary}'
-        self._shell.execute(cmd_kill, user='root')
+        self._container.shell.execute(cmd_kill, user='root')
         try:
             retcode = self._process.wait(0.5)
         except subprocess.TimeoutExpired:
             logger.debug("force killing SITL process")
             self._process.kill()
             retcode = self._process.wait()
-        out = '\n'.join(self._process.stream)
+        out = '\n'.join(self._process.stream)  # type: ignore
         logger.debug('SITL output [{retcode}]:\n{out}')
 
     def __enter__(self) -> 'SITL':
