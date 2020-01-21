@@ -11,9 +11,9 @@ import os
 import attr
 import bugzoo
 import darjeeling
+from darjeeling import ProgramContainer as DarjeelingContainer
 from darjeeling.config import TestSuiteConfig
 from darjeeling.core import Test, TestOutcome
-from darjeeling.container import Container as DarjeelingContainer
 from darjeeling.test import TestSuite
 from darjeeling.util import Stopwatch
 from darjeeling.exceptions import BadConfigurationException
