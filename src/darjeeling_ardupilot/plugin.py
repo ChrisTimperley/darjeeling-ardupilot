@@ -9,6 +9,7 @@ from typing import (Tuple, Dict, Any, Sequence, NoReturn, Mapping, Iterator,
 import os
 
 import attr
+import bugzoo
 import darjeeling
 from darjeeling.config import TestSuiteConfig
 from darjeeling.core import Test, TestOutcome
@@ -165,17 +166,24 @@ class StartTestSuiteConfig(TestSuiteConfig):
 
         return StartTestSuiteConfig(tests=tests, model=vehicle)
 
+    def build(self,
+              environment: darjeeling.Environment,
+              snapshot: bugzoo.Bug
+              ) -> 'StartTestSuite':
+        tests = {t.name: t for t in tests}
+        return StartTestSuite(tests=tests,
+                              environment=environment,
+                              model=self.model)
+
 
 MonitorFactory = Callable[[StartTest, Mission], Monitor]
 
 
 @attr.s(str=False, repr=False)
 class StartTestSuite(TestSuite):
-    CONFIG = StartTestSuiteConfig
-
     _tests: Mapping[str, StartTest] = attr.ib()
-    _bugzoo: bugzoo.Client = attr.ib()
-    _config: StartTestSuiteConfig = attr.ib()
+    _environment: darjeeling.Environment = attr.ib()
+    _model: str = attr.ib()
     _port_pool_mavlink: CircleIntBuffer = \
         attr.ib(default=CircleIntBuffer(13000, 13500))
 
@@ -194,16 +202,6 @@ class StartTestSuite(TestSuite):
     def __repr__(self) -> str:
         return f"StartTestSuite({', '.join(str(self[t]) for t in self._tests)})"
 
-    @classmethod
-    def from_config(cls,
-                    cfg: StartTestSuiteConfig,
-                    bz: bugzoo.Client,
-                    bug: bugzoo.Bug
-                    ) -> TestSuite:
-        return StartTestSuite(tests={t.name: t for t in cfg.tests},
-                              bugzoo=bz,
-                              config=cfg)
-
     def _execute_with_monitor(self,
                               container: DarjeelingContainer,
                               test: StartTest,
@@ -216,7 +214,7 @@ class StartTestSuite(TestSuite):
         ports_mavlink = self._port_pool_mavlink.take(3)
         kwargs = {'mission': test.mission,
                   'container': container,
-                  'model': self._config.model,
+                  'model': self._model,
                   'parameters_filename': test.parameters_filename,
                   'monitor': monitor,
                   'attack': test.attack,
@@ -227,7 +225,9 @@ class StartTestSuite(TestSuite):
 
     def execute(self,
                 container: DarjeelingContainer,
-                test: StartTest
+                test: StartTest,
+                *,
+                coverage: bool = False
                 ) -> TestOutcome:
         """Executes a given test case inside a container."""
         monitor = SimpleMonitor(mission=test.mission)
