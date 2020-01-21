@@ -201,7 +201,7 @@ class Mission(Sequence[dronekit.Command]):
         command_num = 0
 
         def listener_statustext(other, name, message):
-            logger.debug(f'STATUSTEXT: {message.text')
+            logger.debug(f'STATUSTEXT: {message.text}')
 
         logger.debug('attaching STATUSTEXT listener')
         connection.add_message_listener('STATUSTEXT', listener_statustext)
