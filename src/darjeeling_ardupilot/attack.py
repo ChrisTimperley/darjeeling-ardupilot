@@ -45,11 +45,12 @@ class Attack:
                         self._send(connection)
                         return
                 except dronekit.TimeoutError:
-                    logger.debug("lost connection to vehicle -- unable to attack")
+                    logger.debug("lost connection to vehicle -- "
+                                 "unable to attack")
                     return
 
         try:
-            with contextlib.closing(dronekit.connect(url_mavlink, heartbeat_timeout=15)) as conn:
+            with contextlib.closing(dronekit.connect(url_mavlink, heartbeat_timeout=15)) as conn:  # noqa
                 thread_loop = threading.Thread(target=wait_loop, args=(conn,))
                 try:
                     thread_loop.start()
