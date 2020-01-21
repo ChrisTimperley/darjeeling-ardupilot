@@ -1,7 +1,8 @@
 # darjeeling-ardupilot
 
-A plugin for the Darjeeling program repair framework that adds a specialised,
-software-in-the-loop simulation test harness for ArduPilot systems.
+A test harness plugin for the [Darjeeling](https://github.com/squaresLab/Darjeeling)
+program repair framework that allows ArduPilot systems to be tested via
+software-in-the-loop simulation.
 
 
 ## Installation
