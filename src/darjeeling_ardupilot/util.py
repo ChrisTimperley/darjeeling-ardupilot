@@ -50,4 +50,4 @@ class CircleIntBuffer:
 
     def take(self, n: int) -> Tuple[int, ...]:
         assert n <= self._size
-        return tuple(next(self) for i in range(n))
+        return tuple(self.__next__() for i in range(n))
