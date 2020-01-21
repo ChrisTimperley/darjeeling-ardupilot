@@ -25,7 +25,9 @@ BIN_MAVPROXY = \
     pkg_resources.resource_filename(__name__, 'data/mavproxy')
 
 
-def distance_metres(x: dronekit.LocationGlobal, y: dronekit.LocationGlobal) -> float:
+def distance_metres(x: dronekit.LocationGlobal,
+                    y: dronekit.LocationGlobal
+                    ) -> float:
     """Computes the ground distance in metres between two locations.
 
     This method is an approximation, and will not be accurate over large
@@ -84,7 +86,7 @@ class Mission(Sequence[dronekit.Command]):
         arg_currentwp = 0
         arg_frame = int(args[2])
         arg_cmd = int(args[3])
-        arg_autocontinue = 0 # not supported by dronekit
+        arg_autocontinue = 0  # not supported by dronekit
         (p1, p2, p3, p4, x, y, z) = [float(x) for x in args[4:11]]
         cmd = dronekit.Command(
             0, 0, 0, arg_frame, arg_cmd, arg_currentwp, arg_autocontinue,
@@ -206,7 +208,8 @@ class Mission(Sequence[dronekit.Command]):
         logger.debug('attached STATUSTEXT listener')
 
         def distance_to_home():
-            return distance_metres(connection.home_location, connection.location.global_frame)
+            return distance_metres(connection.home_location,
+                                   connection.location.global_frame)
 
         while True:
             command_last = command_num
@@ -219,7 +222,8 @@ class Mission(Sequence[dronekit.Command]):
                 logger.debug(f"HOME: {connection.home_location}")
                 logger.debug(f"MODE: {connection.mode.name}")
                 logger.debug(f"LOCATION: {connection.location.global_frame}")
-                logger.debug(f"DISTANCE TO HOME: {distance_to_home():.2f} metres")
+                logger.debug("DISTANCE TO HOME: "
+                             f"{distance_to_home():.2f} metres")
 
             # the command pointer rolls back to zero upon mission completion
             if has_started and command_num == 0:
@@ -274,8 +278,7 @@ class SITL:
                   model=model,
                   parameters_filename=parameters_filename,
                   home=home,
-                  speedup=speedup
-        ) as sitl:
+                  speedup=speedup) as sitl:
             logger.debug(f"started SITL: {sitl}")
             with sitl.mavproxy(*ports) as urls:
                 yield urls
@@ -286,7 +289,11 @@ class SITL:
         arg_home = ",".join(map(str, self.home))
         fn_param = self.parameters_filename
         fn_script = '/opt/ardupilot/Tools/autotest/sim_vehicle.py'
-        cmd = f'{self.binary} --speedup {self.speedup} --model {self.model} --home {arg_home} --defaults {fn_param}'
+        cmd = (f'{self.binary} '
+               f'--speedup {self.speedup} '
+               f'--model {self.model} '
+               f'--home {arg_home} '
+               f'--defaults {fn_param}')
         return cmd
 
     @contextlib.contextmanager
