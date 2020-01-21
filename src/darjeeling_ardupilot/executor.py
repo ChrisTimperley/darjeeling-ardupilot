@@ -72,7 +72,8 @@ def run_with_monitor(container: DarjeelingContainer,
                        'speedup': speedup,
                        'ports': ports_mavlink}
         url_dronekit, url_attacker, url_monitor = \
-            exit_stack.enter_context(SITL.launch_with_mavproxy(container, **sitl_kwargs))
+            exit_stack.enter_context(SITL.launch_with_mavproxy(container,
+                                                               **sitl_kwargs))
         logger.debug(f"allocated DroneKit URL: {url_dronekit}")
         logger.debug(f"allocated attacker URL: {url_attacker}")
         logger.debug(f"allocated monitor URL: {url_monitor}")
