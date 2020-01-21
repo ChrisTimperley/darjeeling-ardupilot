@@ -15,7 +15,7 @@ import subprocess
 import pkg_resources
 import logging
 
-from darjeeling.container import Container as DarjeelingContainer
+from darjeeling import ProgramContainer as DarjeelingContainer
 from loguru import logger
 from roswire.util import Stopwatch
 import attr
