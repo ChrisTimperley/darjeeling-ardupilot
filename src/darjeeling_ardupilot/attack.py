@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __all__ = ('Attack',)
 
-from typing import Dict, Any
+from typing import Any, Dict, Iterator
 import contextlib
 import logging
 import threading
@@ -33,7 +33,7 @@ class Attack:
             return
 
     @contextlib.contextmanager
-    def wait_and_send(self, url_mavlink: str) -> None:
+    def wait_and_send(self, url_mavlink: str) -> Iterator[None]:
         event_stop = threading.Event()
 
         def wait_loop(connection: dronekit.Vehicle):
