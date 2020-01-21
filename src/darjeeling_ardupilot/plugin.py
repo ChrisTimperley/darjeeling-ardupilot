@@ -172,7 +172,7 @@ class StartTestSuiteConfig(TestSuiteConfig):
               environment: darjeeling.Environment,
               snapshot: bugzoo.Bug
               ) -> 'StartTestSuite':
-        tests = {t.name: t for t in tests}
+        tests = {t.name: t for t in self.tests}
         return StartTestSuite(tests=tests,
                               environment=environment,
                               model=self.model)
