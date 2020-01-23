@@ -19,3 +19,10 @@ on your machine:
   to install the latest version.
 * [Pipenv](https://github.com/pypa/pipenv) should also be installed. Pipenv is
   most easily installed to your system's Python libraries via `pip3`.
+
+
+To install the Docker images for the bug scenarios:
+
+```
+$ make scenarios
+```
