@@ -276,7 +276,9 @@ class SITL:
                   speedup=speedup) as sitl:
             logger.debug(f"started SITL: {sitl}")
             url_prefix = f'tcp:{container.ip_address}'
-            yield tuple(f'{url_prefix}:{port:d}' for port in ports)
+            urls = tuple(f'{url_prefix}:{port:d}' for port in ports)
+            logger.debug(f"reserved SITL sockets: {url}")
+            yield urls
 
     @property
     def command(self) -> str:
@@ -304,8 +306,9 @@ class SITL:
         # FIXME temporary workaround for problems with .terminate
         # self._process.terminate()
         assert self._process
+        # TODO does this need to run as root?
         cmd_kill = f'killall -15 {self.binary}'
-        self._container.shell.execute(cmd_kill, user='root')
+        self._container.shell.check_call(cmd_kill)
         try:
             retcode = self._process.wait(0.5)
         except subprocess.TimeoutExpired:
