@@ -13,7 +13,6 @@ import contextlib
 import signal
 import subprocess
 import pkg_resources
-import logging
 
 from darjeeling import ProgramContainer as DarjeelingContainer
 from loguru import logger
@@ -307,14 +306,18 @@ class SITL:
         # self._process.terminate()
         assert self._process
         # TODO does this need to run as root?
-        cmd_kill = f'killall -15 {self.binary}'
+        logger.debug('attempting to close SITL')
+        cmd_kill = f'sudo killall -15 {self.binary}'
         self._container.shell.check_call(cmd_kill)
         try:
             retcode = self._process.wait(0.5)
+            logger.debug(f'SITL close retcode: {retcode}')
         except subprocess.TimeoutExpired:
             logger.debug("force killing SITL process")
             self._process.kill()
+            logger.debug('killed SITL')
             retcode = self._process.wait()
+            logger.debug(f'SITL forcekill retcode: {retcode}')
         out = '\n'.join(self._process.stream)  # type: ignore
         logger.debug('SITL output [{retcode}]:\n{out}')
 
