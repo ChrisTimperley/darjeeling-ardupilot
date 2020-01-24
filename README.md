@@ -26,3 +26,11 @@ To install the Docker images for the bug scenarios:
 ```
 $ make scenarios
 ```
+
+To install `darjeeling-ardupilot` and its dependencies, including a specific
+version of Darjeeling:
+
+```
+(pipenv) $ pip install -r requirements.txt
+(pipenv) $ pip install -e .
+```
