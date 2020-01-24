@@ -277,7 +277,7 @@ class SITL:
             logger.debug(f"started SITL: {sitl}")
             url_prefix = f'tcp:{container.ip_address}'
             urls = tuple(f'{url_prefix}:{port:d}' for port in ports)
-            logger.debug(f"reserved SITL sockets: {url}")
+            logger.debug(f"reserved SITL sockets: {urls}")
             yield urls
 
     @property
