@@ -186,8 +186,6 @@ class StartTestSuite(TestSuite):
     _tests: Mapping[str, StartTest] = attr.ib()
     _environment: darjeeling.Environment = attr.ib()
     _model: str = attr.ib()
-    _port_pool_mavlink: CircleIntBuffer = \
-        attr.ib(default=CircleIntBuffer(13000, 13500))
 
     def __getitem__(self, name: str) -> StartTest:
         return self._tests[name]
@@ -214,7 +212,7 @@ class StartTestSuite(TestSuite):
                               ) -> TestOutcome:
         timeout_overall = timeout_mission + 10
         ip_address = container.ip_address
-        ports_mavlink = self._port_pool_mavlink.take(3)
+        ports_mavlink = (5760, 5761, 5762)
         kwargs = {'mission': test.mission,
                   'container': container,
                   'model': self._model,
