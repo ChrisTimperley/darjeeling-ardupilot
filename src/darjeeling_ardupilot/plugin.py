@@ -237,5 +237,4 @@ class StartTestSuite(TestSuite):
                                              monitor,
                                              speedup=test.speedup,
                                              timeout_mission=test.timeout_secs)
-        logger.debug("CMT not included with public code -- skipping")
         return outcome

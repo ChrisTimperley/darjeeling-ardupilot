@@ -83,7 +83,7 @@ def run_with_monitor(container: DarjeelingContainer,
 
         # attach the attacker
         if attack:
-            logger.debug("launching attack: %s", attack)
+            logger.debug(f"launching attack: {attack}")
             exit_stack.enter_context(attack.wait_and_send(url_attacker))
 
         # attach the monitor
@@ -96,8 +96,8 @@ def run_with_monitor(container: DarjeelingContainer,
         try:
             mission.execute(vehicle, timeout_mission=timeout)
         except TimeoutError:
-            logger.debug("mission timed out after {:.2f} seconds",
-                         timer.duration)
+            logger.debug("mission timed out after "
+                         f"{timer.duration:.2f} seconds")
             passed = False
         # allow a small amount of time for the message to arrive
         else:
