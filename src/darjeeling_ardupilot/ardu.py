@@ -319,7 +319,7 @@ class SITL:
             retcode = self._process.wait()
             logger.debug(f'SITL forcekill retcode: {retcode}')
         out = '\n'.join(self._process.stream)  # type: ignore
-        logger.debug('SITL output [{retcode}]:\n{out}')
+        logger.debug(f'SITL output [{retcode}]:\n{out}')
 
     def __enter__(self) -> 'SITL':
         self.open()
