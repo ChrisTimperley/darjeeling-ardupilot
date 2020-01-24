@@ -168,10 +168,7 @@ class StartTestSuiteConfig(TestSuiteConfig):
 
         return StartTestSuiteConfig(tests=tests, model=vehicle)
 
-    def build(self,
-              environment: darjeeling.Environment,
-              snapshot: bugzoo.Bug
-              ) -> 'StartTestSuite':
+    def build(self, environment: darjeeling.Environment) -> 'StartTestSuite':
         tests = {t.name: t for t in self.tests}
         return StartTestSuite(tests=tests,
                               environment=environment,
