@@ -8,6 +8,7 @@ program:
     steps:
       - ./waf copter
     steps-for-coverage:
+      - ./waf clean
       - ./waf configure --no-submodule-update CXXFLAGS='--coverage' LDFLAGS='--coverage'
       - ./waf copter
   tests:
