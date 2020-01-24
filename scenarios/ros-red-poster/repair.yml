@@ -56,5 +56,5 @@ coverage:
   load-from-file: coverage.yml
   restrict-to-files:
     - ArduCopter/mode.cpp
-  restrict-to-lines:
-    ArduCopter/mode.cpp: [645, 651]
+#  restrict-to-lines:
+#    ArduCopter/mode.cpp: [645, 651]

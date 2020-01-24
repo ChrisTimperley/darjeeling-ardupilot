@@ -1,10 +1,11 @@
 --- ArduCopter/mode.cpp
 +++ ArduCopter/mode.cpp
-@@ -648,5 +648,5 @@
- bool Copter::Mode::trmo_do_the_wrong_thing(const Location_Class& dest_loc) 
+@@ -636,7 +636,7 @@
  {
-     gcs().send_text(MAV_SEVERITY_INFO, "ALERT OVERRIDE MODE %d", *((int8_t*)&dest_loc.options));
--    return set_mode(BRAKE, MODE_REASON_GCS_COMMAND);
--}
-+    return this->wp_nav->set_wp_destination(dest_loc);
-+}
+     int8_t trmo_function = *((int8_t*)&dest_loc.options);
+     if (trmo_function > 1) { trmo_function = 1; }
+-    return (this->*trmo_functions[trmo_function])(dest_loc);
++    
+ }
+ 
+ bool Copter::Mode::trmo_do_the_right_thing(const Location_Class& dest_loc)
