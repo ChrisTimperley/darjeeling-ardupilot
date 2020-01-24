@@ -25,7 +25,7 @@ program:
         timeout-seconds: 60
         expected-outcome: True
 seed: 0
-threads: 1
+threads: 8
 localization:
   type: spectrum
   metric: weighted
@@ -56,3 +56,5 @@ coverage:
   load-from-file: coverage.yml
   restrict-to-files:
     - ArduCopter/mode.cpp
+  restrict-to-lines:
+    ArduCopter/mode.cpp: [645, 651]
