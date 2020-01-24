@@ -34,3 +34,10 @@ version of Darjeeling:
 (pipenv) $ pip install -r requirements.txt
 (pipenv) $ pip install -e .
 ```
+
+
+## Usage
+
+```
+(pipenv) $ darjeeling repair scenarios/ros-red-poster/repair.yml
+```
