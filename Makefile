@@ -8,6 +8,8 @@ SCENARIOS = \
   ais-updated-arc_injection \
   ais-updated-int_overflow
 
+scenarios: $(SCENARIOS)
+
 $(SCENARIOS): .ardupilot
 	git -C .ardupilot checkout $@
 	docker build -t trmo/ardupilot:$@ .ardupilot
@@ -22,4 +24,4 @@ clean:
 src/darjeeling_ardupilot/data/mavproxy:
 	./build-mavproxy.sh
 
-.PHONY: $(SCENARIOS) .ardupilot clean
+.PHONY: scenarios $(SCENARIOS) .ardupilot clean
