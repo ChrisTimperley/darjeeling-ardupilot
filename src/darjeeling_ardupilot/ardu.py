@@ -179,7 +179,8 @@ class Mission(Sequence[dronekit.Command]):
                 connection: dronekit.Vehicle,
                 *,
                 timeout_setup: float = 90.0,
-                timeout_mission: float = 120.0
+                timeout_mission: float = 120.0,
+                timeout_heartbeat: float = 5.0
                 ) -> None:
         """Executes this mission on a given vehicle.
 
@@ -228,6 +229,13 @@ class Mission(Sequence[dronekit.Command]):
             # the command pointer rolls back to zero upon mission completion
             if has_started and command_num == 0:
                 break
+
+            if connection.last_heartbeat > timeout_heartbeat:
+                logger.debug("vehicle failed liveness check")
+                break
+                # raise TimeoutError("vehicle failed liveness check")
+            else:
+                logger.debug(f"last heartbeat: {connection.last_heartbeat:.3f}")
 
             if timer.duration > timeout_mission:
                 logger.debug("timeout occurred during mission execution.")
@@ -279,10 +287,6 @@ class SITL:
             logger.debug(f"started SITL: {sitl}")
             with sitl.mavproxy(*ports) as urls:
                 yield urls
-            # url_prefix = f'tcp:{container.ip_address}'
-            # urls = tuple(f'{url_prefix}:{port:d}' for port in ports)
-            # logger.debug(f"reserved SITL sockets: {urls}")
-            # yield urls
 
     @property
     def command(self) -> str:

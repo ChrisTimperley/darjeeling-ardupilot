@@ -31,7 +31,7 @@ def run_with_monitor_in_process(*args, **kwargs) -> TestOutcome:
     timer = Stopwatch()
     timer.start()
     p.start()
-    p.join(timeout)  # increase?
+    p.join(timeout)
     timer.stop()
 
     if p.is_alive():
@@ -52,6 +52,7 @@ def run_with_monitor(container: DarjeelingContainer,
                      attack: Optional[Attack],
                      speedup: int,
                      timeout: int,
+                     timeout_heartbeat: float,
                      ports_mavlink: Tuple[int, int, int]
                      ) -> TestOutcome:
     ip_address = container.ip_address
@@ -60,6 +61,7 @@ def run_with_monitor(container: DarjeelingContainer,
     logger.debug(f"using model: {model}")
     logger.debug(f"using parameters filename: {parameters_filename}")
     logger.debug(f"using timeout: {timeout:d} seconds")
+    logger.debug(f"using heartbeat timeout: {timeout_heartbeat:.3f} seconds")
     logger.debug(f"using speedup: {speedup:d}X")
 
     with ExitStack() as exit_stack:
@@ -79,8 +81,13 @@ def run_with_monitor(container: DarjeelingContainer,
         logger.debug(f"allocated monitor URL: {url_monitor}")
 
         # connect via DroneKit
+        # note that the timeout for this connection must be longer than the
+        # timeout used when checking since the .last_heartbeat property of
+        # dronekit will no longer work as soon as a heartbeat_timeout
+        # exception is encountered
         vehicle = exit_stack.enter_context(
-            closing(dronekit.connect(url_dronekit, heartbeat_timeout=15)))
+            closing(dronekit.connect(url_dronekit,
+                                     heartbeat_timeout=timeout_heartbeat + 5)))
         logger.debug(f"connected to vehicle via DroneKit: {url_dronekit}")
 
         # attach the attacker
@@ -99,7 +106,9 @@ def run_with_monitor(container: DarjeelingContainer,
         timer.start()
         try:
             logger.debug("executing mission...")
-            mission.execute(vehicle, timeout_mission=timeout)
+            mission.execute(vehicle,
+                            timeout_mission=timeout,
+                            timeout_heartbeat=timeout_heartbeat)
         except TimeoutError:
             logger.debug("mission timed out after "
                          f"{timer.duration:.2f} seconds")

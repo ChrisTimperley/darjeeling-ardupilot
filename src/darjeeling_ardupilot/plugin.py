@@ -184,6 +184,7 @@ class StartTestSuite(TestSuite):
     _model: str
     _port_pool_mavlink: CircleIntBuffer = \
         attr.ib(default=CircleIntBuffer(13000, 13500))
+    _timeout_heartbeat: float = attr.ib(default=5)
 
     def __getitem__(self, name: str) -> StartTest:
         return self._tests[name]
@@ -219,6 +220,7 @@ class StartTestSuite(TestSuite):
                   'attack': test.attack,
                   'speedup': speedup,
                   'timeout': timeout_mission,
+                  'timeout_heartbeat': self._timeout_heartbeat,
                   'ports_mavlink': ports_mavlink}
         return run_with_monitor_in_process(**kwargs)
 
