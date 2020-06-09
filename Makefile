@@ -1,5 +1,8 @@
 SCENARIOS = red-poster
 
+clean:
+	rm -f mav.tlog* mav.parm darjeeling.log* bugzood.log*
+
 .ardupilot:
 	test -d .ardupilot || git clone https://gitlab.eecs.umich.edu/wrg-code/ardupilot .ardupilot
 	git -C .ardupilot pull
