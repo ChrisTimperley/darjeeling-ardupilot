@@ -1,6 +1,12 @@
 SCENARIOS = \
   red-poster \
-  ais-updated-floating_point_exception
+  ais-updated-floating_point_exception \
+  ais-improved-infinite_loop \
+  ais-updated-use_after_free \
+  ais-updated-logic_bug \
+  ais-updated-heap_overflow_data_overwrite \
+  ais-updated-arc_injection \
+  ais-updated-int_overflow
 
 $(SCENARIOS): .ardupilot
 	git -C .ardupilot checkout $@
