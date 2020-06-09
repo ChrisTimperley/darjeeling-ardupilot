@@ -20,6 +20,9 @@ from darjeeling.util import Stopwatch
 import attr
 import dronekit
 
+BIN_MAVPROXY = \
+    pkg_resources.resource_filename(__name__, 'data/mavproxy')
+
 
 def distance_metres(x: dronekit.LocationGlobal,
                     y: dronekit.LocationGlobal
@@ -274,10 +277,12 @@ class SITL:
                   home=home,
                   speedup=speedup) as sitl:
             logger.debug(f"started SITL: {sitl}")
-            url_prefix = f'tcp:{container.ip_address}'
-            urls = tuple(f'{url_prefix}:{port:d}' for port in ports)
-            logger.debug(f"reserved SITL sockets: {urls}")
-            yield urls
+            with sitl.mavproxy(*ports) as urls:
+                yield urls
+            # url_prefix = f'tcp:{container.ip_address}'
+            # urls = tuple(f'{url_prefix}:{port:d}' for port in ports)
+            # logger.debug(f"reserved SITL sockets: {urls}")
+            # yield urls
 
     @property
     def command(self) -> str:
@@ -292,12 +297,42 @@ class SITL:
                f'--defaults {fn_param}')
         return cmd
 
+    @contextlib.contextmanager
+    def mavproxy(self, *ports: int) -> Iterator[Tuple[str, ...]]:
+        url_master = f'tcp:{self.ip_address}:5760'
+        url_sitl = f'tcp:{self.ip_address}:5501'
+        urls_out = tuple(f'udp:127.0.0.1:{p}' for p in ports)
+        cmd_args = [f'{BIN_MAVPROXY} --daemon --master={url_master}']
+        cmd_args += [f'--out {url}' for url in urls_out]
+        cmd = ' '.join(cmd_args)
+
+        logger.debug(f"launching mavproxy: {cmd}")
+        p = None
+        try:
+            p = subprocess.Popen(cmd,
+                                 encoding='utf-8',
+                                 stdin=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL,
+                                 stdout=subprocess.DEVNULL,
+                                 preexec_fn=os.setsid,
+                                 shell=True)
+            yield urls_out
+        finally:
+            if p:
+                os.killpg(p.pid, signal.SIGTERM)
+                p.wait(2)
+                logger.debug(f"mavproxy exited with code {p.returncode}")
+
+    @property
+    def ip_address(self) -> str:
+        return self._container.ip_address
+
     def open(self) -> 'SITL':
         """Launches this SITL."""
         command = self.command
         logger.debug(f'launching SITL: {command}')
         self._process = self._container.shell.popen(command)
-        time.sleep(5)
+        time.sleep(5)  # FIXME necessary? this is dodgy.
         return self
 
     def close(self) -> None:

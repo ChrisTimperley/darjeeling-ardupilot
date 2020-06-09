@@ -177,11 +177,13 @@ class StartTestSuiteConfig(TestSuiteConfig):
 MonitorFactory = Callable[[StartTest, Mission], Monitor]
 
 
-@attr.s(str=False, repr=False)
+@attr.s(str=False, repr=False, auto_attribs=True)
 class StartTestSuite(TestSuite):
-    _tests: Mapping[str, StartTest] = attr.ib()
-    _environment: darjeeling.Environment = attr.ib()
-    _model: str = attr.ib()
+    _tests: Mapping[str, StartTest]
+    _environment: darjeeling.Environment
+    _model: str
+    _port_pool_mavlink: CircleIntBuffer = \
+        attr.ib(default=CircleIntBuffer(13000, 13500))
 
     def __getitem__(self, name: str) -> StartTest:
         return self._tests[name]
@@ -208,7 +210,7 @@ class StartTestSuite(TestSuite):
                               ) -> TestOutcome:
         timeout_overall = timeout_mission + 10
         ip_address = container.ip_address
-        ports_mavlink = (5760, 5761, 5762)
+        ports_mavlink = self._port_pool_mavlink.take(3)
         kwargs = {'mission': test.mission,
                   'container': container,
                   'model': self._model,
