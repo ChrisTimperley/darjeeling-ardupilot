@@ -1,3 +1,5 @@
+src/darjeeling_ardupilot/data/mavproxy
+
 bugzood.log
 darjeeling.log*
 Pipfile
