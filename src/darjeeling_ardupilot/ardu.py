@@ -232,10 +232,7 @@ class Mission(Sequence[dronekit.Command]):
 
             if connection.last_heartbeat > timeout_heartbeat:
                 logger.debug("vehicle failed liveness check")
-                break
-                # raise TimeoutError("vehicle failed liveness check")
-            else:
-                logger.debug(f"last heartbeat: {connection.last_heartbeat:.3f}")
+                raise TimeoutError("vehicle failed liveness check")
 
             if timer.duration > timeout_mission:
                 logger.debug("timeout occurred during mission execution.")
