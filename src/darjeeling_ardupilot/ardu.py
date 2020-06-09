@@ -324,7 +324,7 @@ class SITL:
         finally:
             if p:
                 os.killpg(p.pid, signal.SIGTERM)
-                p.wait(2)
+                p.wait(2)  # FIXME do we really need this?
                 logger.debug(f"mavproxy exited with code {p.returncode}")
 
     @property
@@ -347,7 +347,7 @@ class SITL:
         # TODO does this need to run as root?
         logger.debug('attempting to close SITL')
         cmd_kill = f'sudo killall -15 {self.binary}'
-        self._container.shell.check_call(cmd_kill)
+        self._container.shell.run(cmd_kill)
         try:
             retcode = self._process.wait(0.5)
             logger.debug(f'SITL close retcode: {retcode}')
