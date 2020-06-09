@@ -1,0 +1,63 @@
+version: '1.0'
+program:
+  language: cpp
+  image: trmo/ardupilot:ais-updated-int_overflow
+  source-directory: /opt/ardupilot
+  build-instructions:
+    time-limit: 120
+    steps:
+      - ./waf copter
+    steps-for-coverage:
+      - ./waf clean
+      - ./waf configure --no-submodule-update CXXFLAGS='--coverage' LDFLAGS='--coverage'
+      - ./waf copter
+  tests:
+    type: start
+    tests:
+      - name: mair-with-attack
+        mission: mair.mission.txt
+        speedup: 20
+        timeout-seconds: 60
+        expected-outcome: False
+        attack:
+          parameter: BCN_LATITUDE
+          value: -1
+          waypoint: 3
+      - name: mair-good
+        mission: mair.mission.txt
+        speedup: 20
+        timeout-seconds: 60
+        expected-outcome: True
+seed: 0
+threads: 8
+localization:
+  type: spectrum
+  metric: weighted
+  restrict-to-files:
+  - libraries/GCS_MAVLink/GCS_Param.cpp
+algorithm:
+  type: exhaustive
+transformations:
+  schemas:
+    - type: delete-statement
+    - type: replace-statement
+    - type: prepend-statement
+optimizations:
+  only-insert-executed-code: yes
+  ignore-equivalent-prepends: yes
+  ignore-dead-code: yes
+  ignore-string-equivalent-snippets: yes
+  ignore-untyped-returns: yes
+  ignore-decls: yes
+  use-scope-checking: yes
+  use-syntax-scope-checking: yes
+resource-limits:
+  candidates: 500
+  time-minutes: 15
+coverage:
+  method:
+    type: gcov
+    files-to-instrument:
+    - libraries/GCS_MAVLink/GCS_Param.cpp
+    restrict-to-files:
+    - libraries/GCS_MAVLink/GCS_Param.cpp
