@@ -4,14 +4,14 @@ from contextlib import closing, ExitStack
 from multiprocessing import Process, Queue
 from queue import Empty
 import time
-import logging
 
-import darjeeling
-import dronekit
 from darjeeling import ProgramContainer as DarjeelingContainer
 from darjeeling.core import TestOutcome
 from darjeeling.util import Stopwatch
 from loguru import logger
+
+import darjeeling
+import dronekit
 
 from .ardu import Mission, SITL
 from .core import Monitor
@@ -31,10 +31,11 @@ def run_with_monitor_in_process(*args, **kwargs) -> TestOutcome:
     timer = Stopwatch()
     timer.start()
     p.start()
-    p.join(timeout)
+    p.join(timeout)  # increase?
     timer.stop()
 
     if p.is_alive():
+        logger.debug("force terminating execution process")
         p.terminate()
         return TestOutcome(False, timer.duration)
     try:
@@ -80,6 +81,7 @@ def run_with_monitor(container: DarjeelingContainer,
         # connect via DroneKit
         vehicle = exit_stack.enter_context(
             closing(dronekit.connect(url_dronekit, heartbeat_timeout=15)))
+        logger.debug(f"connected to vehicle via DroneKit: {url_dronekit}")
 
         # attach the attacker
         if attack:
@@ -87,13 +89,16 @@ def run_with_monitor(container: DarjeelingContainer,
             exit_stack.enter_context(attack.wait_and_send(url_attacker))
 
         # attach the monitor
+        logger.debug("attaching monitor to vehicle...")
         monitor.attach_to(url_monitor)
         exit_stack.enter_context(monitor)
+        logger.debug("attached monitor to vehicle")
 
         # execute the mission
         timer = Stopwatch()
         timer.start()
         try:
+            logger.debug("executing mission...")
             mission.execute(vehicle, timeout_mission=timeout)
         except TimeoutError:
             logger.debug("mission timed out after "
@@ -101,10 +106,12 @@ def run_with_monitor(container: DarjeelingContainer,
             passed = False
         # allow a small amount of time for the message to arrive
         else:
+            logger.debug("reached end of mission")
             monitor.notify_mission_end()
             passed = monitor.is_ok()
             time.sleep(0.5)
         timer.stop()
+        logger.debug(f"finished mission execution after {timer.duration:.3f}s")
 
         # determine the outcome
         outcome = TestOutcome(passed, timer.duration)
