@@ -8,6 +8,8 @@ SCENARIOS = \
   ais-updated-arc_injection \
   ais-updated-int_overflow
 
+all: scenarios src/darjeeling_ardupilot/data/mavproxy
+
 scenarios: $(SCENARIOS)
 
 $(SCENARIOS): .ardupilot
@@ -24,4 +26,4 @@ clean:
 src/darjeeling_ardupilot/data/mavproxy:
 	./build-mavproxy.sh
 
-.PHONY: scenarios $(SCENARIOS) .ardupilot clean
+.PHONY: all scenarios $(SCENARIOS) .ardupilot clean
