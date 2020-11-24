@@ -21,10 +21,11 @@ on your machine:
   most easily installed to your system's Python libraries via `pip3`.
 
 
-To install the Docker images for the bug scenarios:
+To install the Docker images for all of the bug scenarios and to build a portable
+MAVProxy binary that is required by the Darjeeling test harness:
 
 ```
-$ make scenarios
+$ make
 ```
 
 To install `darjeeling-ardupilot` and its dependencies, including a specific
