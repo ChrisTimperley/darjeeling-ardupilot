@@ -1,0 +1,11 @@
+--- libraries/GCS_MAVLink/GCS_Param.cpp
++++ libraries/GCS_MAVLink/GCS_Param.cpp
+@@ -55,7 +55,7 @@
+ 
+     // use at most 30% of bandwidth on parameters. The constant 26 is
+     // 1/(1000 * 1/8 * 0.001 * 0.3)
+-    bytes_allowed = 57 * (tnow - _queued_parameter_send_time_ms) * 26;
++    
+     if (bytes_allowed > comm_get_txspace(chan)) {
+         bytes_allowed = comm_get_txspace(chan);
+     }
